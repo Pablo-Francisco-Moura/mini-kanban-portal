@@ -14,10 +14,11 @@ function App() {
       <CssBaseline />
       <div
         style={{
+          gap: "12px",
           width: "100vw",
-          // border: "10px solid red",
           height: "100vh",
           display: "flex",
+          padding: "12px",
           maxWidth: "100vw",
           maxHeight: "100vh",
           flexDirection: "column",
@@ -26,22 +27,22 @@ function App() {
         <Typography
           sx={{
             variant: "h1",
-            padding: "20px",
             fontSize: "24px",
             fontWeight: "bold",
-            // border: "10px solid red",
           }}
         >
-          Mini Kanban Portal
+          Mini Kanban
         </Typography>
-        <Divider sx={{ borderBottomWidth: "2px", mx: "12px" }} />
+        <Divider sx={{ borderBottomWidth: "2px" }} />
 
         <BoardList
           onSelectBoard={setSelectedBoardId}
           selectedBoardId={selectedBoardId}
         />
 
-        <Divider sx={{ borderBottomWidth: "2px", mx: "12px" }} />
+        <Divider sx={{ borderBottomWidth: "2px" }} />
+
+        {selectedBoardId && <Board boardId={selectedBoardId} />}
       </div>
     </>
   );

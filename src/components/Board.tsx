@@ -1,3 +1,53 @@
-export function Board() {
-  return <div>Board</div>;
+import { Column } from "./Column";
+import { getBoard } from "../api/boards";
+import { useEffect } from "react";
+import { useKanbanStore } from "../store/kanbanStore";
+import type { TypeBoard, TypeColumn, TypeCard } from "../store/kanbanStore";
+
+export type TypeBoardDetailResponse = TypeBoard & {
+  cards: TypeCard[];
+  columns: TypeColumn[];
+};
+
+interface Props {
+  boardId: string;
+}
+
+export function Board({ boardId }: Props) {
+  const boards = useKanbanStore((s) => s.boards);
+  const columns = useKanbanStore((s) => s.columns);
+
+  const setColumns = useKanbanStore((s) => s.setColumns);
+
+  // Fetch board with nested columns and cards.
+  useEffect(() => {
+    getBoard(boardId).then((res) => {
+      const data = res?.data as TypeBoardDetailResponse;
+
+      if (data && data?.columns && data.columns?.length > 0) {
+        setColumns(data.columns);
+      } else {
+        setColumns([]);
+      }
+    });
+  }, [boardId, setColumns]);
+
+  const board = boards.find((b) => b.id === boardId);
+  if (!board) return <div>Quadro não encontrado.</div>;
+
+  return (
+    <div
+      style={{
+        gap: 16,
+        flex: 1,
+        display: "flex",
+        alignItems: "flex-start",
+        border: "1px solid red",
+      }}
+    >
+      {columns.map((column) => (
+        <Column key={column.id} column={column} />
+      ))}
+    </div>
+  );
 }
