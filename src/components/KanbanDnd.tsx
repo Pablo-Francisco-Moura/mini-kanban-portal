@@ -1,6 +1,6 @@
 import { Card } from "./Card";
+import { moveCardApi } from "../api/cards";
 import { useKanbanStore } from "../store/kanbanStore";
-import { moveCard as moveCardApi } from "../api/cards";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import type { DropResult } from "react-beautiful-dnd";
 

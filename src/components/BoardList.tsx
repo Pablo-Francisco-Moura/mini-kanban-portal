@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import { useKanbanStore } from "../store/kanbanStore";
 import { useEffect, useState } from "react";
-import { getBoards, createBoard } from "../api/boards";
+import { getBoardsApi, createBoardApi } from "../api/boards";
 import Select from "@mui/material/Select";
 import AddIcon from "@mui/icons-material/Add";
 import MenuItem from "@mui/material/MenuItem";
@@ -33,7 +33,7 @@ export function BoardList({ onSelectBoard, selectedBoardId }: Props) {
   const createNewBoard = async () => {
     setLoading(true);
     try {
-      const res = await createBoard({ name: newBoardName });
+      const res = await createBoardApi({ name: newBoardName });
       if (res?.data) {
         setBoards([...boards, res.data]);
         setNewBoardName("");
@@ -46,7 +46,7 @@ export function BoardList({ onSelectBoard, selectedBoardId }: Props) {
   };
 
   useEffect(() => {
-    getBoards().then((res) => {
+    getBoardsApi().then((res) => {
       if (res?.data && Array.isArray(res.data)) {
         setBoards(res.data);
         if (selectedBoardId === null && res.data.length > 0) {

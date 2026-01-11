@@ -1,6 +1,6 @@
-import { getBoard } from "../api/boards";
 import { KanbanDnd } from "./KanbanDnd";
 import { useEffect } from "react";
+import { getBoardApi } from "../api/boards";
 import { useKanbanStore } from "../store/kanbanStore";
 import type { TypeBoard, TypeColumn, TypeCard } from "../store/kanbanStore";
 
@@ -20,7 +20,7 @@ export function Board({ boardId }: Props) {
 
   // Fetch board with nested columns and cards.
   useEffect(() => {
-    getBoard(boardId).then((res) => {
+    getBoardApi(boardId).then((res) => {
       const data = res?.data as TypeBoardDetailResponse;
 
       if (data && data?.columns && data.columns?.length > 0) {
