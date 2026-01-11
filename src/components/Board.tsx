@@ -1,5 +1,5 @@
-import { Column } from "./Column";
 import { getBoard } from "../api/boards";
+import { KanbanDnd } from "./KanbanDnd";
 import { useEffect } from "react";
 import { useKanbanStore } from "../store/kanbanStore";
 import type { TypeBoard, TypeColumn, TypeCard } from "../store/kanbanStore";
@@ -15,7 +15,6 @@ interface Props {
 
 export function Board({ boardId }: Props) {
   const boards = useKanbanStore((s) => s.boards);
-  const columns = useKanbanStore((s) => s.columns);
 
   const setColumns = useKanbanStore((s) => s.setColumns);
 
@@ -35,19 +34,5 @@ export function Board({ boardId }: Props) {
   const board = boards.find((b) => b.id === boardId);
   if (!board) return <div>Quadro não encontrado.</div>;
 
-  return (
-    <div
-      style={{
-        gap: 16,
-        flex: 1,
-        display: "flex",
-        alignItems: "flex-start",
-        border: "1px solid red",
-      }}
-    >
-      {columns.map((column) => (
-        <Column key={column.id} column={column} />
-      ))}
-    </div>
-  );
+  return <KanbanDnd />;
 }
