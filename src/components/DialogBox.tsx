@@ -1,3 +1,4 @@
+import { t } from "i18next";
 import { Dialog } from "@mui/material";
 import { Button } from "@mui/material";
 import { TextField } from "@mui/material";
@@ -34,7 +35,7 @@ export function DialogBox({
 
   return (
     <Dialog open={open} onClose={onClose}>
-      <DialogTitle>{`Novo(a) ${label}`}</DialogTitle>
+      <DialogTitle>{` ${t("new")} ${t(label)}`}</DialogTitle>
       <DialogContent>
         {fields.map((field, index) => (
           <TextField

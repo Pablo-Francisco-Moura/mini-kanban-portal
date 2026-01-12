@@ -1,0 +1,18 @@
+{
+  "delete_card": "Deletar Cartão",
+  "confirm_delete_title": "Confirmar exclusão",
+  "confirm_delete_text": "Tem certeza que deseja deletar este cartão?",
+  "cancel": "Cancelar",
+  "delete": "Deletar",
+  "board": "Quadro",
+  "add_board": "Adicionar Quadro",
+  "name": "Nome",
+  "new": "Novo(a)",
+  "board_not_found": "Quadro não encontrado.",
+  "add_card": "Adicionar Cartão",
+  "add_column": "Adicionar Coluna",
+  "column": "Coluna",
+  "card": "Cartão",
+  "title": "Título",
+  "description": "Descrição"
+}

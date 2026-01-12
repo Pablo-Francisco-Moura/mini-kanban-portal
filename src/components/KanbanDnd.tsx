@@ -1,3 +1,4 @@
+import { t } from "i18next";
 import { Card } from "./Card";
 import { useState } from "react";
 import { DialogBox } from "./DialogBox";
@@ -25,24 +26,24 @@ export function KanbanDnd({ boardId }: Props) {
   const [loadingCard, setLoadingCard] = useState(false);
   const [loadingColumn, setLoadingColumn] = useState(false);
   const [newCardValues, setNewCardValues] = useState<TypeFieldsValues>({
-    Título: "",
-    Descrição: "",
+    title: "",
+    description: "",
   });
   const [newColumnValues, setNewColumnValues] = useState<TypeFieldsValues>({
-    Nome: "",
+    name: "",
   });
 
   const createColumn = async () => {
     setLoadingColumn(true);
     try {
       const res = await createColumnApi(boardId, {
-        name: newColumnValues.Nome,
+        name: newColumnValues.name,
         order: columns.length + 1,
       });
 
       if (res?.data) {
         setColumns([...columns, res.data]);
-        setNewColumnValues({ Nome: "" });
+        setNewColumnValues({ name: "" });
         setOpenColumn(false);
       }
     } finally {
@@ -54,8 +55,8 @@ export function KanbanDnd({ boardId }: Props) {
     setLoadingCard(true);
     try {
       const res = await createCardApi(columnId, {
-        title: newCardValues.Título,
-        description: newCardValues.Descrição || "",
+        title: newCardValues.title || "",
+        description: newCardValues.description || "",
       });
 
       if (res?.data) {
@@ -147,7 +148,7 @@ export function KanbanDnd({ boardId }: Props) {
                   }}
                 >
                   <h3>{column.name}</h3>
-                  <Tooltip arrow title="Adicionar Cartão">
+                  <Tooltip arrow title={t("add_card")}>
                     <IconButton
                       onClick={() => {
                         setOpenCard(true);
@@ -184,7 +185,7 @@ export function KanbanDnd({ boardId }: Props) {
             )}
           </Droppable>
         ))}
-        <Tooltip arrow title="Adicionar Coluna">
+        <Tooltip arrow title={t("add_column")}>
           <IconButton
             sx={{
               top: "10px",
@@ -198,8 +199,8 @@ export function KanbanDnd({ boardId }: Props) {
 
         <DialogBox
           open={openColumn}
-          label="Coluna"
-          fields={["Nome"]}
+          label={t("column")}
+          fields={[t("name")]}
           action={createColumn}
           setNew={setNewColumnValues}
           onClose={() => setOpenColumn(false)}
@@ -209,8 +210,8 @@ export function KanbanDnd({ boardId }: Props) {
       </div>
       <DialogBox
         open={openCard}
-        label="Cartão"
-        fields={["Título", "Descrição"]}
+        label={t("card")}
+        fields={[t("title"), t("description")]}
         action={createCard}
         loading={loadingCard}
         newValues={newCardValues}

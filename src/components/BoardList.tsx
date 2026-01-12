@@ -1,3 +1,4 @@
+import { t } from "i18next";
 import { DialogBox } from "./DialogBox";
 import { useKanbanStore } from "../store/kanbanStore";
 import { Tooltip, IconButton } from "@mui/material";
@@ -22,16 +23,16 @@ export function BoardList({ onSelectBoard, selectedBoardId }: Props) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [newColumnValues, setNewColumnValues] = useState<TypeFieldsValues>({
-    Nome: "",
+    name: "",
   });
 
   const createNewBoard = async () => {
     setLoading(true);
     try {
-      const res = await createBoardApi({ name: newColumnValues.Nome });
+      const res = await createBoardApi({ name: newColumnValues.name });
       if (res?.data) {
         setBoards([...boards, res.data]);
-        setNewColumnValues({ Nome: "" });
+        setNewColumnValues({ name: "" });
         setOpen(false);
         onSelectBoard(res?.data?.id);
       }
@@ -61,11 +62,11 @@ export function BoardList({ onSelectBoard, selectedBoardId }: Props) {
       }}
     >
       <FormControl sx={{ m: 1, width: 300 }}>
-        <InputLabel id="board-select-label">Quadro</InputLabel>
+        <InputLabel id="board-select-label"> {t("board")}</InputLabel>
         <Select
           id="board-select"
           value={selectedBoardId || ""}
-          label="Quadro"
+          label={t("board")}
           labelId="board-select-label"
           onChange={(e) => onSelectBoard(e.target.value)}
         >
@@ -76,7 +77,7 @@ export function BoardList({ onSelectBoard, selectedBoardId }: Props) {
           ))}
         </Select>
       </FormControl>
-      <Tooltip arrow title="Adicionar Quadro">
+      <Tooltip arrow title={t("add_board")}>
         <IconButton onClick={() => setOpen(true)}>
           <AddIcon />
         </IconButton>
@@ -84,8 +85,8 @@ export function BoardList({ onSelectBoard, selectedBoardId }: Props) {
 
       <DialogBox
         open={open}
-        label="Quadro"
-        fields={["Nome"]}
+        label={t("board")}
+        fields={["name"]}
         action={createNewBoard}
         setNew={setNewColumnValues}
         onClose={() => setOpen(false)}

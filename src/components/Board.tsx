@@ -1,3 +1,4 @@
+import { t } from "i18next";
 import { KanbanDnd } from "./KanbanDnd";
 import { useEffect } from "react";
 import { getBoardApi } from "../api/boards";
@@ -27,7 +28,7 @@ export function Board({ boardId }: Props) {
   }, [boardId, setColumns]);
 
   const board = boards.find((b) => b.id === boardId);
-  if (!board) return <div>Quadro não encontrado.</div>;
+  if (!board) return <div>{t("board_not_found")}</div>;
 
   return <KanbanDnd boardId={boardId} />;
 }

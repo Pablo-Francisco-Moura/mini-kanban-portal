@@ -7,8 +7,6 @@ import CssBaseline from "@mui/material/CssBaseline";
 function App() {
   const [selectedBoardId, setSelectedBoardId] = useState<string | null>(null);
 
-  console.log("selectedBoardId: ", selectedBoardId);
-
   return (
     <>
       <CssBaseline />

@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import { deleteCardApi } from "../api/cards";
+import { useTranslation } from "react-i18next";
 import { useKanbanStore } from "../store/kanbanStore";
 import type { TypeCard } from "../types/kanban";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -19,6 +20,8 @@ interface Props {
 }
 
 export function Card({ card }: Props) {
+  const { t } = useTranslation();
+
   const setColumns = useKanbanStore((s) => s.setColumns);
   const columns = useKanbanStore((s) => s.columns);
 
@@ -59,7 +62,7 @@ export function Card({ card }: Props) {
             </p>
           )}
         </div>
-        <Tooltip title="Deletar Cartão">
+        <Tooltip title={t("delete_card") as string}>
           <IconButton
             size="small"
             style={{ float: "right" }}
@@ -70,18 +73,16 @@ export function Card({ card }: Props) {
         </Tooltip>
       </div>
       <Dialog open={open} onClose={() => setOpen(false)}>
-        <DialogTitle>Confirmar exclusão</DialogTitle>
+        <DialogTitle>{t("confirm_delete_title")}</DialogTitle>
         <DialogContent>
-          <DialogContentText>
-            Tem certeza que deseja deletar este cartão?
-          </DialogContentText>
+          <DialogContentText>{t("confirm_delete_text")}</DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpen(false)} disabled={loading}>
-            Cancelar
+            {t("cancel")}
           </Button>
           <Button onClick={handleDelete} color="error" disabled={loading}>
-            Deletar
+            {t("delete")}
           </Button>
         </DialogActions>
       </Dialog>
