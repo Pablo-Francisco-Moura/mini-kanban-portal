@@ -1,14 +1,6 @@
-import {
-  Dialog,
-  Button,
-  Tooltip,
-  TextField,
-  IconButton,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-} from "@mui/material";
+import { DialogBox } from "./DialogBox";
 import { useKanbanStore } from "../store/kanbanStore";
+import { Tooltip, IconButton } from "@mui/material";
 import { useEffect, useState } from "react";
 import { getBoardsApi, createBoardApi } from "../api/boards";
 import Select from "@mui/material/Select";
@@ -82,32 +74,15 @@ export function BoardList({ onSelectBoard, selectedBoardId }: Props) {
         </IconButton>
       </Tooltip>
 
-      <Dialog open={open} onClose={() => setOpen(false)}>
-        <DialogTitle>Novo Quadro</DialogTitle>
-        <DialogContent>
-          <TextField
-            label="Nome do Quadro"
-            value={newBoardName}
-            margin="dense"
-            onChange={(e) => setNewBoardName(e.target.value)}
-            disabled={loading}
-            autoFocus
-            fullWidth
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpen(false)} disabled={loading}>
-            Cancelar
-          </Button>
-          <Button
-            onClick={createNewBoard}
-            disabled={!newBoardName.trim() || loading}
-            variant="contained"
-          >
-            Criar
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <DialogBox
+        open={open}
+        label="Quadro"
+        action={createNewBoard}
+        loading={loading}
+        newName={newBoardName}
+        onClose={() => setOpen(false)}
+        setNewName={setNewBoardName}
+      />
     </div>
   );
 }

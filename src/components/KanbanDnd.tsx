@@ -1,12 +1,43 @@
 import { Card } from "./Card";
+import { useState } from "react";
+import { DialogBox } from "./DialogBox";
 import { moveCardApi } from "../api/cards";
 import { useKanbanStore } from "../store/kanbanStore";
+import { createColumnApi } from "../api/columns";
+import { Tooltip, IconButton } from "@mui/material";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import type { DropResult } from "react-beautiful-dnd";
+import AddIcon from "@mui/icons-material/Add";
 
-export function KanbanDnd() {
+interface Props {
+  boardId: string;
+}
+
+export function KanbanDnd({ boardId }: Props) {
   const columns = useKanbanStore((s) => s.columns);
   const setColumns = useKanbanStore((s) => s.setColumns);
+
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [newColumnName, setNewColumnName] = useState("");
+
+  const createColumn = async () => {
+    setLoading(true);
+    try {
+      const res = await createColumnApi(boardId, {
+        name: newColumnName,
+        order: columns.length + 1,
+      });
+
+      if (res?.data) {
+        setColumns([...columns, res.data]);
+        setNewColumnName("");
+        setOpen(false);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const onDragEnd = (result: DropResult) => {
     const { source, destination } = result;
@@ -51,7 +82,15 @@ export function KanbanDnd() {
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>
-      <div style={{ display: "flex", gap: 16, flex: 1 }}>
+      <div
+        style={{
+          gap: 16,
+          flex: 1,
+          display: "flex",
+          overflowX: "auto",
+          flexDirection: "row",
+        }}
+      >
         {columns.map((column) => (
           <Droppable droppableId={column.id} key={column.id}>
             {(provided) => (
@@ -59,17 +98,21 @@ export function KanbanDnd() {
                 ref={provided.innerRef}
                 {...provided.droppableProps}
                 style={{
+                  padding: 12,
                   minWidth: 250,
                   background: "#f4f4f4",
                   borderRadius: 8,
-                  padding: 12,
                 }}
               >
                 <h3>{column.name}</h3>
                 <div
-                  style={{ display: "flex", flexDirection: "column", gap: 8 }}
+                  style={{
+                    gap: 8,
+                    display: "flex",
+                    flexDirection: "column",
+                  }}
                 >
-                  {column.cards.map((card, idx) => (
+                  {column?.cards?.map((card, idx) => (
                     <Draggable draggableId={card.id} index={idx} key={card.id}>
                       {(provided) => (
                         <div
@@ -88,6 +131,21 @@ export function KanbanDnd() {
             )}
           </Droppable>
         ))}
+        <Tooltip arrow title="Adicionar Coluna">
+          <IconButton onClick={() => setOpen(true)}>
+            <AddIcon />
+          </IconButton>
+        </Tooltip>
+
+        <DialogBox
+          open={open}
+          label="Coluna"
+          action={createColumn}
+          loading={loading}
+          newName={newColumnName}
+          onClose={() => setOpen(false)}
+          setNewName={setNewColumnName}
+        />
       </div>
     </DragDropContext>
   );

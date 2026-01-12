@@ -34,5 +34,5 @@ export function Board({ boardId }: Props) {
   const board = boards.find((b) => b.id === boardId);
   if (!board) return <div>Quadro não encontrado.</div>;
 
-  return <KanbanDnd />;
+  return <KanbanDnd boardId={boardId} />;
 }
