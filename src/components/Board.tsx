@@ -1,6 +1,6 @@
 import { t } from "i18next";
-import { KanbanDnd } from "./KanbanDnd";
 import { useEffect } from "react";
+import { DragAndDrop } from "./DragAndDrop";
 import { getBoardApi } from "../api/boards";
 import { useKanbanStore } from "../store/kanbanStore";
 import type { TypeBoardDetailResponse } from "../types/kanban";
@@ -30,5 +30,5 @@ export function Board({ boardId }: Props) {
   const board = boards.find((b) => b.id === boardId);
   if (!board) return <div>{t("board_not_found")}</div>;
 
-  return <KanbanDnd boardId={boardId} />;
+  return <DragAndDrop boardId={boardId} />;
 }

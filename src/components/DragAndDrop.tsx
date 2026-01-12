@@ -16,7 +16,7 @@ interface Props {
   boardId: string;
 }
 
-export function KanbanDnd({ boardId }: Props) {
+export function DragAndDrop({ boardId }: Props) {
   const columns = useKanbanStore((s) => s.columns);
   const setColumns = useKanbanStore((s) => s.setColumns);
 

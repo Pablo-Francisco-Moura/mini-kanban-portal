@@ -1,4 +1,4 @@
-import { KanbanDnd } from "../components/KanbanDnd";
+import { DragAndDrop } from "../components/DragAndDrop";
 import { render, screen } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
 import type { TypeColumn } from "../types/kanban";
@@ -39,9 +39,9 @@ vi.spyOn(kanbanStore, "useKanbanStore").mockImplementation((selector) =>
   })
 );
 
-describe("KanbanDnd", () => {
+describe("DragAndDrop", () => {
   it("renders columns and cards", () => {
-    render(<KanbanDnd boardId={boardId} />);
+    render(<DragAndDrop boardId={boardId} />);
     expect(screen.getByText("To Do")).toBeInTheDocument();
     expect(screen.getByText("Task 1")).toBeInTheDocument();
     expect(screen.getByText("Task 2")).toBeInTheDocument();
