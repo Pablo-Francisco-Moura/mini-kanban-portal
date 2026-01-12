@@ -78,7 +78,12 @@ export function BoardList({ onSelectBoard, selectedBoardId }: Props) {
         </Select>
       </FormControl>
       <Tooltip arrow title={t("add_board")}>
-        <IconButton onClick={() => setOpen(true)}>
+        <IconButton
+          sx={{
+            maxHeight: "40px",
+          }}
+          onClick={() => setOpen(true)}
+        >
           <AddIcon />
         </IconButton>
       </Tooltip>

@@ -13,15 +13,16 @@ import { DialogBox } from "./DialogBox";
 import { useTranslation } from "react-i18next";
 import { useKanbanStore } from "../store/kanbanStore";
 import { deleteCardApi, updateCardApi } from "../api/cards";
-import type { TypeCard, TypeFieldsValues } from "../types/kanban";
+import type { TypeCard, TypeFieldsValues, TypeMode } from "../types/kanban";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 
 interface Props {
+  mode: TypeMode;
   card: TypeCard;
 }
 
-export function Card({ card }: Props) {
+export function Card({ mode, card }: Props) {
   const { t } = useTranslation();
 
   const setColumns = useKanbanStore((s) => s.setColumns);
@@ -76,7 +77,7 @@ export function Card({ card }: Props) {
           display: "flex",
           padding: 10,
           boxShadow: "0 1px 4px #0001",
-          background: "#fff",
+          backgroundColor: mode === "light" ? "#fff" : "#585467ff",
           borderRadius: 6,
           justifyContent: "space-between",
         }}
@@ -93,12 +94,15 @@ export function Card({ card }: Props) {
         <div
           style={{
             display: "flex",
+            alignItems: "center",
           }}
         >
           <Tooltip title={`${t("update")} ${t("card")}`}>
             <IconButton
               size="small"
-              style={{ float: "right" }}
+              sx={{
+                maxHeight: "40px",
+              }}
               onClick={() => setOpenEdit(true)}
             >
               <EditIcon fontSize="small" />
@@ -107,7 +111,9 @@ export function Card({ card }: Props) {
           <Tooltip title={t("delete_card") as string}>
             <IconButton
               size="small"
-              style={{ float: "right" }}
+              sx={{
+                maxHeight: "40px",
+              }}
               onClick={() => setOpenDelete(true)}
             >
               <DeleteIcon fontSize="small" />

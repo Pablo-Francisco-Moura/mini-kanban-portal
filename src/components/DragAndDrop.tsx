@@ -17,6 +17,7 @@ interface Props {
 }
 
 export function DragAndDrop({ boardId }: Props) {
+  const mode = useKanbanStore((s) => s.mode);
   const columns = useKanbanStore((s) => s.columns);
   const setColumns = useKanbanStore((s) => s.setColumns);
 
@@ -137,8 +138,8 @@ export function DragAndDrop({ boardId }: Props) {
                   padding: 12,
                   minWidth: 250,
                   overflowY: "auto",
-                  background: "#f4f4f4",
                   borderRadius: 8,
+                  backgroundColor: mode === "light" ? "#f4f4f4" : "#484555ff",
                 }}
               >
                 <div
@@ -150,6 +151,9 @@ export function DragAndDrop({ boardId }: Props) {
                   <h3>{column.name}</h3>
                   <Tooltip arrow title={t("add_card")}>
                     <IconButton
+                      sx={{
+                        maxHeight: "40px",
+                      }}
                       onClick={() => {
                         setOpenCard(true);
                         setColumnId(column.id);
@@ -174,7 +178,7 @@ export function DragAndDrop({ boardId }: Props) {
                           {...provided.draggableProps}
                           {...provided.dragHandleProps}
                         >
-                          <Card card={card} />
+                          <Card mode={mode} card={card} />
                         </div>
                       )}
                     </Draggable>
