@@ -1,10 +1,11 @@
 import { Card } from "./Card";
 import { useState } from "react";
-import { DialogBox } from "./DialogBox";
 import { moveCardApi } from "../api/cards";
+import { createCardApi } from "../api/cards";
 import { useKanbanStore } from "../store/kanbanStore";
 import { createColumnApi } from "../api/columns";
 import { Tooltip, IconButton } from "@mui/material";
+import { DialogBox, type TypeFieldsValues } from "./DialogBox";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import type { DropResult } from "react-beautiful-dnd";
 import AddIcon from "@mui/icons-material/Add";
@@ -17,25 +18,58 @@ export function KanbanDnd({ boardId }: Props) {
   const columns = useKanbanStore((s) => s.columns);
   const setColumns = useKanbanStore((s) => s.setColumns);
 
-  const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [newColumnName, setNewColumnName] = useState("");
+  const [columnId, setColumnId] = useState("");
+  const [openCard, setOpenCard] = useState(false);
+  const [openColumn, setOpenColumn] = useState(false);
+  const [loadingCard, setLoadingCard] = useState(false);
+  const [loadingColumn, setLoadingColumn] = useState(false);
+  const [newCardValues, setNewCardValues] = useState<TypeFieldsValues>({
+    Título: "",
+    Descrição: "",
+  });
+  const [newColumnValues, setNewColumnValues] = useState<TypeFieldsValues>({
+    Nome: "",
+  });
 
   const createColumn = async () => {
-    setLoading(true);
+    setLoadingColumn(true);
     try {
       const res = await createColumnApi(boardId, {
-        name: newColumnName,
+        name: newColumnValues.Nome,
         order: columns.length + 1,
       });
 
       if (res?.data) {
         setColumns([...columns, res.data]);
-        setNewColumnName("");
-        setOpen(false);
+        setNewColumnValues({ Nome: "" });
+        setOpenColumn(false);
       }
     } finally {
-      setLoading(false);
+      setLoadingColumn(false);
+    }
+  };
+
+  const createCard = async () => {
+    setLoadingCard(true);
+    try {
+      const res = await createCardApi(columnId, {
+        title: newCardValues.Título,
+        description: newCardValues.Descrição || "",
+      });
+
+      if (res?.data) {
+        const updatedColumns = columns.map((col) => {
+          if (col.id === columnId) {
+            return { ...col, cards: [...col.cards, res.data] };
+          }
+          return col;
+        });
+        setColumns(updatedColumns);
+        setNewCardValues({ title: "", description: "" });
+        setOpenCard(false);
+      }
+    } finally {
+      setLoadingCard(false);
     }
   };
 
@@ -100,11 +134,29 @@ export function KanbanDnd({ boardId }: Props) {
                 style={{
                   padding: 12,
                   minWidth: 250,
+                  overflowY: "auto",
                   background: "#f4f4f4",
                   borderRadius: 8,
                 }}
               >
-                <h3>{column.name}</h3>
+                <div
+                  style={{
+                    justifyContent: "space-between",
+                    display: "flex",
+                  }}
+                >
+                  <h3>{column.name}</h3>
+                  <Tooltip arrow title="Adicionar Cartão">
+                    <IconButton
+                      onClick={() => {
+                        setOpenCard(true);
+                        setColumnId(column.id);
+                      }}
+                    >
+                      <AddIcon />
+                    </IconButton>
+                  </Tooltip>
+                </div>
                 <div
                   style={{
                     gap: 8,
@@ -132,21 +184,32 @@ export function KanbanDnd({ boardId }: Props) {
           </Droppable>
         ))}
         <Tooltip arrow title="Adicionar Coluna">
-          <IconButton onClick={() => setOpen(true)}>
+          <IconButton onClick={() => setOpenColumn(true)}>
             <AddIcon />
           </IconButton>
         </Tooltip>
 
         <DialogBox
-          open={open}
+          open={openColumn}
           label="Coluna"
+          fields={["Nome"]}
           action={createColumn}
-          loading={loading}
-          newName={newColumnName}
-          onClose={() => setOpen(false)}
-          setNewName={setNewColumnName}
+          setNew={setNewColumnValues}
+          onClose={() => setOpenColumn(false)}
+          loading={loadingColumn}
+          newValues={newColumnValues}
         />
       </div>
+      <DialogBox
+        open={openCard}
+        label="Cartão"
+        fields={["Título", "Descrição"]}
+        action={createCard}
+        loading={loadingCard}
+        newValues={newCardValues}
+        onClose={() => setOpenCard(false)}
+        setNew={setNewCardValues}
+      />
     </DragDropContext>
   );
 }

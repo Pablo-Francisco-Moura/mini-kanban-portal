@@ -1,8 +1,8 @@
-import { DialogBox } from "./DialogBox";
 import { useKanbanStore } from "../store/kanbanStore";
 import { Tooltip, IconButton } from "@mui/material";
 import { useEffect, useState } from "react";
 import { getBoardsApi, createBoardApi } from "../api/boards";
+import { DialogBox, type TypeFieldsValues } from "./DialogBox";
 import Select from "@mui/material/Select";
 import AddIcon from "@mui/icons-material/Add";
 import MenuItem from "@mui/material/MenuItem";
@@ -19,16 +19,18 @@ export function BoardList({ onSelectBoard, selectedBoardId }: Props) {
   const setBoards = useKanbanStore((s) => s.setBoards);
 
   const [open, setOpen] = useState(false);
-  const [newBoardName, setNewBoardName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [newColumnValues, setNewColumnValues] = useState<TypeFieldsValues>({
+    Nome: "",
+  });
 
   const createNewBoard = async () => {
     setLoading(true);
     try {
-      const res = await createBoardApi({ name: newBoardName });
+      const res = await createBoardApi({ name: newColumnValues.Nome });
       if (res?.data) {
         setBoards([...boards, res.data]);
-        setNewBoardName("");
+        setNewColumnValues({ Nome: "" });
         setOpen(false);
         onSelectBoard(res?.data?.id);
       }
@@ -77,11 +79,12 @@ export function BoardList({ onSelectBoard, selectedBoardId }: Props) {
       <DialogBox
         open={open}
         label="Quadro"
+        fields={["Nome"]}
         action={createNewBoard}
-        loading={loading}
-        newName={newBoardName}
+        setNew={setNewColumnValues}
         onClose={() => setOpen(false)}
-        setNewName={setNewBoardName}
+        loading={loading}
+        newValues={newColumnValues}
       />
     </div>
   );

@@ -5,38 +5,51 @@ import { DialogTitle } from "@mui/material";
 import { DialogContent } from "@mui/material";
 import { DialogActions } from "@mui/material";
 
+export type TypeFieldsValues = Record<string, string>;
+
 interface Props {
   open: boolean;
   label: string;
-  newName: string;
+  fields: string[];
   loading: boolean;
+  newValues: TypeFieldsValues;
   action: () => Promise<void>;
+  setNew: (values: TypeFieldsValues) => void;
   onClose: () => void;
-  setNewName: (name: string) => void;
 }
 
 export function DialogBox({
   open,
   label,
-  newName,
+  fields,
   loading,
+  newValues,
   action,
+  setNew,
   onClose,
-  setNewName,
 }: Props) {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setNew({ ...newValues, [name]: value });
+  };
+
   return (
     <Dialog open={open} onClose={onClose}>
       <DialogTitle>{`Novo(a) ${label}`}</DialogTitle>
       <DialogContent>
-        <TextField
-          label={`Nome do(a) ${label}`}
-          value={newName}
-          margin="dense"
-          onChange={(e) => setNewName(e.target.value)}
-          disabled={loading}
-          autoFocus
-          fullWidth
-        />
+        {fields.map((field, index) => (
+          <TextField
+            key={`${index}-${label}-${field}`}
+            name={field}
+            label={field}
+            value={newValues[field] || ""}
+            margin="dense"
+            onChange={handleChange}
+            disabled={loading}
+            autoFocus={index === 0}
+            fullWidth
+          />
+        ))}
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} disabled={loading}>
@@ -44,7 +57,7 @@ export function DialogBox({
         </Button>
         <Button
           onClick={action}
-          disabled={!newName.trim() || loading}
+          disabled={fields.some((f) => !newValues[f]?.trim()) || loading}
           variant="contained"
         >
           Criar
