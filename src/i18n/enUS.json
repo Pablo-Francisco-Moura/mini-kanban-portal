@@ -1,0 +1,22 @@
+{
+  "delete_card": "Delete Card",
+  "confirm_delete_title": "Confirm deletion",
+  "confirm_delete_text": "Are you sure you want to delete this card?",
+  "cancel": "Cancel",
+  "delete": "Delete",
+  "board": "Board",
+  "add_board": "Add Board",
+  "name": "Name",
+  "new": "New",
+  "board_not_found": "Board not found.",
+  "add_card": "Add Card",
+  "add_column": "Add Column",
+  "column": "Column",
+  "card": "Card",
+  "title": "Title",
+  "description": "Description",
+  "update": "Update",
+  "light": "Light Mode",
+  "dark": "Dark Mode",
+  "create": "Create"
+}

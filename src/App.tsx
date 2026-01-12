@@ -1,35 +1,70 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { Board } from "./components/Board";
+import { useState } from "react";
+import { BoardList } from "./components/BoardList";
+import { ThemeSwitch } from "./components/ThemeSwitch";
+import { useKanbanStore } from "./store/kanbanStore";
+import { Divider, Typography, ThemeProvider, createTheme } from "@mui/material";
+import CssBaseline from "@mui/material/CssBaseline";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const mode = useKanbanStore((s) => s.mode);
+  const setMode = useKanbanStore((s) => s.setMode);
+
+  const [selectedBoardId, setSelectedBoardId] = useState<string | null>(null);
+
+  const theme = createTheme({
+    palette: {
+      mode,
+    },
+  });
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <div
+        style={{
+          gap: "12px",
+          width: "100vw",
+          height: "100vh",
+          display: "flex",
+          padding: "12px",
+          maxWidth: "100vw",
+          maxHeight: "100vh",
+          flexDirection: "column",
+          backgroundColor: mode === "light" ? "#e0e0e0" : "#27252fff",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-between",
+          }}
+        >
+          <Typography
+            sx={{
+              variant: "h1",
+              fontSize: "24px",
+              fontWeight: "bold",
+            }}
+          >
+            Mini Kanban
+          </Typography>
+          <ThemeSwitch mode={mode} setMode={setMode} />
+        </div>
+        <Divider sx={{ borderBottomWidth: "2px" }} />
+
+        <BoardList
+          onSelectBoard={setSelectedBoardId}
+          selectedBoardId={selectedBoardId}
+        />
+
+        <Divider sx={{ borderBottomWidth: "2px" }} />
+
+        {selectedBoardId && <Board boardId={selectedBoardId} />}
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </ThemeProvider>
+  );
 }
 
-export default App
+export default App;
