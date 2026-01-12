@@ -17,5 +17,6 @@
   "description": "Descrição",
   "update": "Atualizar",
   "light": "Modo Claro",
-  "dark": "Modo Escuro"
+  "dark": "Modo Escuro",
+  "create": "Criar"
 }

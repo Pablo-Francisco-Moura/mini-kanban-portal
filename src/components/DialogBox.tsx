@@ -64,7 +64,7 @@ export function DialogBox({
           disabled={fields.some((f) => !newValues[f]?.trim()) || loading}
           variant="contained"
         >
-          Criar
+          {t("create")}
         </Button>
       </DialogActions>
     </Dialog>

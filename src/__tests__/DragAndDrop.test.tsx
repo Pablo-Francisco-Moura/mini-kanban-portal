@@ -40,7 +40,7 @@ vi.spyOn(kanbanStore, "useKanbanStore").mockImplementation((selector) =>
 );
 
 describe("DragAndDrop", () => {
-  it("renders columns and cards", () => {
+  it("Renders columns and cards.", () => {
     render(<DragAndDrop boardId={boardId} />);
     expect(screen.getByText("To Do")).toBeInTheDocument();
     expect(screen.getByText("Task 1")).toBeInTheDocument();

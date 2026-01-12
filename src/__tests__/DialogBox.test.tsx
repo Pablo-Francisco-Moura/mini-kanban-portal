@@ -16,35 +16,45 @@ const defaultProps = {
 vi.mock("i18next", () => ({ t: (key: string) => key }));
 
 describe("DialogBox", () => {
-  it("renderiza o título e campo de texto", () => {
+  it("Render the title and text field.", () => {
     render(<DialogBox {...defaultProps} />);
     expect(screen.getByText(/coluna/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/name/i)).toBeInTheDocument();
   });
 
-  it("chama setNew ao digitar no campo", () => {
+  it("Calls setNew when typing in the field.", () => {
     render(<DialogBox {...defaultProps} />);
     const input = screen.getByLabelText(/name/i);
-    fireEvent.change(input, { target: { value: "Minha coluna" } });
-    expect(defaultProps.setNew).toHaveBeenCalledWith({ name: "Minha coluna" });
+    fireEvent.change(input, { target: { value: "My column" } });
+    expect(defaultProps.setNew).toHaveBeenCalledWith({ name: "My column" });
   });
 
-  it("desabilita o botão Criar se campo vazio", () => {
+  it("Disables the Create button if the field is empty.", () => {
     render(<DialogBox {...defaultProps} />);
-    const button = screen.getByText(/Criar/i);
-    expect(button).toBeDisabled();
+    const button = screen
+      .getAllByRole("button")
+      .find((btn) => /criar|create/i.test(btn.textContent || ""));
+    expect(button).toBeDefined();
+    if (button) expect(button).toBeDisabled();
   });
 
-  it("habilita o botão Criar se campo preenchido", () => {
-    render(<DialogBox {...defaultProps} newValues={{ name: "Teste" }} />);
-    const button = screen.getByText(/Criar/i);
-    expect(button).not.toBeDisabled();
+  it("Enables the Create button if the field is filled.", () => {
+    render(<DialogBox {...defaultProps} newValues={{ name: "Test" }} />);
+    const button = screen
+      .getAllByRole("button")
+      .find((btn) => /criar|create/i.test(btn.textContent || ""));
+    expect(button).toBeDefined();
+    if (button) expect(button).not.toBeDisabled();
   });
 
-  it("chama onClose ao clicar em Cancelar", () => {
+  it("Calls onClose when clicking Cancel", () => {
     render(<DialogBox {...defaultProps} />);
-    const button = screen.getByText(/Cancelar/i);
-    fireEvent.click(button);
+    // Busca o botão pelo papel e pelo texto (aceita variações de tradução)
+    const button = screen
+      .getAllByRole("button")
+      .find((btn) => /cancelar|cancel|cancela/i.test(btn.textContent || ""));
+    expect(button).toBeDefined();
+    if (button) fireEvent.click(button);
     expect(defaultProps.onClose).toHaveBeenCalled();
   });
 });
