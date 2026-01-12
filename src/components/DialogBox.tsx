@@ -39,7 +39,7 @@ export function DialogBox({
 
   return (
     <Dialog open={open} onClose={onClose}>
-      <DialogTitle>{` ${t("new")} ${t(label)}`}</DialogTitle>
+      <DialogTitle>{label}</DialogTitle>
       <DialogContent>
         {fields.map((field, index) => (
           <TextField

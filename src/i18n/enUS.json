@@ -14,5 +14,6 @@
   "column": "Column",
   "card": "Card",
   "title": "Title",
-  "description": "Description"
+  "description": "Description",
+  "update": "Update"
 }

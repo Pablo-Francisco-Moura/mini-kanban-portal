@@ -85,7 +85,7 @@ export function BoardList({ onSelectBoard, selectedBoardId }: Props) {
 
       <DialogBox
         open={open}
-        label={t("board")}
+        label={`${t("new")} ${t("board")}`}
         fields={["name"]}
         action={createNewBoard}
         setNew={setNewColumnValues}
