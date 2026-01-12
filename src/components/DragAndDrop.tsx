@@ -43,7 +43,9 @@ export function DragAndDrop({ boardId }: Props) {
       });
 
       if (res?.data) {
-        setColumns([...columns, res.data]);
+        // Certify that cards array exists.
+        const newCol = { ...res.data, cards: res.data.cards || [] };
+        setColumns([...columns, newCol]);
         setNewColumnValues({ name: "" });
         setOpenColumn(false);
       }
