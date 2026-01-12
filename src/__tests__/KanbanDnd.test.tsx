@@ -4,7 +4,7 @@ import { describe, it, expect, vi } from "vitest";
 import type { TypeColumn } from "../types/kanban";
 import * as kanbanStore from "../store/kanbanStore";
 
-// Mock store and data
+// Mock store and data.
 const boardId = "board-1";
 const columns: TypeColumn[] = [
   {
