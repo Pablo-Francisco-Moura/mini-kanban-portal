@@ -200,7 +200,7 @@ export function KanbanDnd({ boardId }: Props) {
         <DialogBox
           open={openColumn}
           label={t("column")}
-          fields={[t("name")]}
+          fields={["name"]}
           action={createColumn}
           setNew={setNewColumnValues}
           onClose={() => setOpenColumn(false)}
@@ -211,7 +211,7 @@ export function KanbanDnd({ boardId }: Props) {
       <DialogBox
         open={openCard}
         label={t("card")}
-        fields={[t("title"), t("description")]}
+        fields={["title", "description"]}
         action={createCard}
         loading={loadingCard}
         newValues={newCardValues}

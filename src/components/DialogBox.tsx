@@ -5,6 +5,7 @@ import { TextField } from "@mui/material";
 import { DialogTitle } from "@mui/material";
 import { DialogContent } from "@mui/material";
 import { DialogActions } from "@mui/material";
+import type { ChangeEvent } from "react";
 import type { TypeFieldsValues } from "../types/kanban";
 
 interface Props {
@@ -28,9 +29,12 @@ export function DialogBox({
   setNew,
   onClose,
 }: Props) {
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setNew({ ...newValues, [name]: value });
+  const handleChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    field: string
+  ) => {
+    const { value } = e.target;
+    setNew({ ...newValues, [field]: value });
   };
 
   return (
@@ -41,10 +45,10 @@ export function DialogBox({
           <TextField
             key={`${index}-${label}-${field}`}
             name={field}
-            label={field}
+            label={t(field)}
             value={newValues[field] || ""}
             margin="dense"
-            onChange={handleChange}
+            onChange={(e) => handleChange(e, field)}
             disabled={loading}
             autoFocus={index === 0}
             fullWidth
