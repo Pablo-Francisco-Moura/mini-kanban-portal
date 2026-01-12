@@ -8,9 +8,15 @@ const resources = {
   en: { translation: enUS },
 };
 
+const browserLang =
+  typeof window !== "undefined" && window.navigator.language
+    ? window.navigator.language
+    : "pt";
+const lng = browserLang.startsWith("en") ? "en" : "pt";
+
 i18n.use(initReactI18next).init({
   resources,
-  lng: "pt",
+  lng,
   fallbackLng: "en",
   interpolation: {
     escapeValue: false,
