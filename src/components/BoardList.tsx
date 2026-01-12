@@ -1,8 +1,9 @@
+import { DialogBox } from "./DialogBox";
 import { useKanbanStore } from "../store/kanbanStore";
 import { Tooltip, IconButton } from "@mui/material";
 import { useEffect, useState } from "react";
 import { getBoardsApi, createBoardApi } from "../api/boards";
-import { DialogBox, type TypeFieldsValues } from "./DialogBox";
+import type { TypeFieldsValues } from "../types/kanban";
 import Select from "@mui/material/Select";
 import AddIcon from "@mui/icons-material/Add";
 import MenuItem from "@mui/material/MenuItem";

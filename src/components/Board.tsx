@@ -2,12 +2,7 @@ import { KanbanDnd } from "./KanbanDnd";
 import { useEffect } from "react";
 import { getBoardApi } from "../api/boards";
 import { useKanbanStore } from "../store/kanbanStore";
-import type { TypeBoard, TypeColumn, TypeCard } from "../store/kanbanStore";
-
-export type TypeBoardDetailResponse = TypeBoard & {
-  cards: TypeCard[];
-  columns: TypeColumn[];
-};
+import type { TypeBoardDetailResponse } from "../types/kanban";
 
 interface Props {
   boardId: string;

@@ -1,8 +1,8 @@
 import { Board } from "./components/Board";
 import { useState } from "react";
 import { BoardList } from "./components/BoardList";
-import CssBaseline from "@mui/material/CssBaseline";
 import { Divider, Typography } from "@mui/material";
+import CssBaseline from "@mui/material/CssBaseline";
 
 function App() {
   const [selectedBoardId, setSelectedBoardId] = useState<string | null>(null);

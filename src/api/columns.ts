@@ -1,5 +1,5 @@
 import { api } from "./config";
-import type { TypeColumn } from "../store/kanbanStore";
+import type { TypeColumn } from "../types/kanban";
 
 export const createColumnApi = (
   boardId: string,

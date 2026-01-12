@@ -1,5 +1,5 @@
 import { api } from "./config";
-import type { TypeCard } from "../store/kanbanStore";
+import type { TypeCard } from "../types/kanban";
 
 export const moveCardApi = (cardId: string, newColumnId: string) =>
   api.patch(`/cards/${cardId}/move`, { newColumnId });

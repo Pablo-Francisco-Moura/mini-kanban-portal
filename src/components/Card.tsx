@@ -1,4 +1,4 @@
-import type { TypeCard } from "../store/kanbanStore";
+import type { TypeCard } from "../types/kanban";
 
 interface Props {
   card: TypeCard;

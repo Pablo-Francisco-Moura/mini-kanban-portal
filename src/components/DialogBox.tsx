@@ -4,8 +4,7 @@ import { TextField } from "@mui/material";
 import { DialogTitle } from "@mui/material";
 import { DialogContent } from "@mui/material";
 import { DialogActions } from "@mui/material";
-
-export type TypeFieldsValues = Record<string, string>;
+import type { TypeFieldsValues } from "../types/kanban";
 
 interface Props {
   open: boolean;

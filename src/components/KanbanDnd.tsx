@@ -1,13 +1,14 @@
 import { Card } from "./Card";
 import { useState } from "react";
+import { DialogBox } from "./DialogBox";
 import { moveCardApi } from "../api/cards";
 import { createCardApi } from "../api/cards";
 import { useKanbanStore } from "../store/kanbanStore";
 import { createColumnApi } from "../api/columns";
 import { Tooltip, IconButton } from "@mui/material";
-import { DialogBox, type TypeFieldsValues } from "./DialogBox";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import type { DropResult } from "react-beautiful-dnd";
+import type { TypeFieldsValues } from "../types/kanban";
 import AddIcon from "@mui/icons-material/Add";
 
 interface Props {

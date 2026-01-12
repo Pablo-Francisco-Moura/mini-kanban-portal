@@ -1,5 +1,5 @@
 import { api } from "./config";
-import type { TypeBoard } from "../store/kanbanStore";
+import type { TypeBoard } from "../types/kanban";
 
 export const getBoardApi = (id: string) => api.get<TypeBoard>(`/boards/${id}`);
 
