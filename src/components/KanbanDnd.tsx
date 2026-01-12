@@ -185,7 +185,13 @@ export function KanbanDnd({ boardId }: Props) {
           </Droppable>
         ))}
         <Tooltip arrow title="Adicionar Coluna">
-          <IconButton onClick={() => setOpenColumn(true)}>
+          <IconButton
+            sx={{
+              top: "10px",
+              maxHeight: "40px",
+            }}
+            onClick={() => setOpenColumn(true)}
+          >
             <AddIcon />
           </IconButton>
         </Tooltip>

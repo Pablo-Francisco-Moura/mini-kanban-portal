@@ -54,7 +54,12 @@ export function BoardList({ onSelectBoard, selectedBoardId }: Props) {
   }, [setBoards]);
 
   return (
-    <div>
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+      }}
+    >
       <FormControl sx={{ m: 1, width: 300 }}>
         <InputLabel id="board-select-label">Quadro</InputLabel>
         <Select
