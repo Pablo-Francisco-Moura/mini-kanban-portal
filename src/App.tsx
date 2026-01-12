@@ -1,14 +1,25 @@
 import { Board } from "./components/Board";
 import { useState } from "react";
 import { BoardList } from "./components/BoardList";
-import { Divider, Typography } from "@mui/material";
+import { ThemeSwitch } from "./components/ThemeSwitch";
+import { useKanbanStore } from "./store/kanbanStore";
+import { Divider, Typography, ThemeProvider, createTheme } from "@mui/material";
 import CssBaseline from "@mui/material/CssBaseline";
 
 function App() {
+  const mode = useKanbanStore((s) => s.mode);
+  const setMode = useKanbanStore((s) => s.setMode);
+
   const [selectedBoardId, setSelectedBoardId] = useState<string | null>(null);
 
+  const theme = createTheme({
+    palette: {
+      mode,
+    },
+  });
+
   return (
-    <>
+    <ThemeProvider theme={theme}>
       <CssBaseline />
       <div
         style={{
@@ -20,17 +31,27 @@ function App() {
           maxWidth: "100vw",
           maxHeight: "100vh",
           flexDirection: "column",
+          backgroundColor: mode === "light" ? "#e0e0e0" : "#27252fff",
         }}
       >
-        <Typography
-          sx={{
-            variant: "h1",
-            fontSize: "24px",
-            fontWeight: "bold",
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-between",
           }}
         >
-          Mini Kanban
-        </Typography>
+          <Typography
+            sx={{
+              variant: "h1",
+              fontSize: "24px",
+              fontWeight: "bold",
+            }}
+          >
+            Mini Kanban
+          </Typography>
+          <ThemeSwitch mode={mode} setMode={setMode} />
+        </div>
         <Divider sx={{ borderBottomWidth: "2px" }} />
 
         <BoardList
@@ -42,7 +63,7 @@ function App() {
 
         {selectedBoardId && <Board boardId={selectedBoardId} />}
       </div>
-    </>
+    </ThemeProvider>
   );
 }
 

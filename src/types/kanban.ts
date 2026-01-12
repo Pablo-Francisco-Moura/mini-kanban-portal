@@ -25,3 +25,5 @@ export type TypeBoardDetailResponse = TypeBoard & {
 };
 
 export type TypeFieldsValues = Record<string, string>;
+
+export type TypeMode = "light" | "dark";

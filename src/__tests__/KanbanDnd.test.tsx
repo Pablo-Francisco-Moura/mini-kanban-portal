@@ -28,8 +28,10 @@ const columns: TypeColumn[] = [
 
 vi.spyOn(kanbanStore, "useKanbanStore").mockImplementation((selector) =>
   selector({
+    mode: "light",
     boards: [],
     columns,
+    setMode: vi.fn(),
     addBoard: vi.fn(),
     setBoards: vi.fn(),
     addColumn: vi.fn(),

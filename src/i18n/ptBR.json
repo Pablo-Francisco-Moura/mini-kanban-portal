@@ -15,5 +15,7 @@
   "card": "Cartão",
   "title": "Título",
   "description": "Descrição",
-  "update": "Atualizar"
+  "update": "Atualizar",
+  "light": "Modo Claro",
+  "dark": "Modo Escuro"
 }

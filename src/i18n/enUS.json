@@ -15,5 +15,7 @@
   "card": "Card",
   "title": "Title",
   "description": "Description",
-  "update": "Update"
+  "update": "Update",
+  "light": "Light Mode",
+  "dark": "Dark Mode"
 }
