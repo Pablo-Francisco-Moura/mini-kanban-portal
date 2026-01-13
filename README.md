@@ -47,3 +47,8 @@ SPA React para gerenciamento visual de Quadros, Colunas e Cartões, integrando c
    ```bash
    npx vitest --ui
    ```
+
+## 🚀 Produção
+
+- Portal:
+  https://mini-kanban-portal.vercel.app/
