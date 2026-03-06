@@ -12,7 +12,6 @@ SPA React para gerenciamento visual de Quadros, Colunas e Cartões, integrando c
    ```
 
 2. **Configure as variáveis de ambiente:**
-
    - O arquivo `.env` já está configurado para uso local.
 
 3. **Suba o frontend em Docker:**
