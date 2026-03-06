@@ -1,7 +1,7 @@
 import { initReactI18next } from "react-i18next";
 import i18n from "i18next";
-import ptBR from "./ptBR.json";
-import enUS from "./enUS.json";
+import ptBR from "../i18n/ptBR.json";
+import enUS from "../i18n/enUS.json";
 
 const resources = {
   pt: { translation: ptBR },
