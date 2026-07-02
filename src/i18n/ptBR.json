@@ -19,5 +19,6 @@
   "light": "Modo Claro",
   "dark": "Modo Escuro",
   "create": "Criar",
-  "loading_db": "Carregando informações do banco de dados..."
+  "loading_db": "Carregando informações do banco de dados...",
+  "please_wait": "Aguarde um instante."
 }
