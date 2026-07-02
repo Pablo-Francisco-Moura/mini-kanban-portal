@@ -20,5 +20,6 @@
   "dark": "Modo Escuro",
   "create": "Criar",
   "loading_db": "Carregando informações do banco de dados...",
-  "please_wait": "Aguarde um instante."
+  "please_wait": "Aguarde um instante.",
+  "please_await": "Aguarde um instante."
 }
