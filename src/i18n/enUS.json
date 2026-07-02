@@ -20,5 +20,6 @@
   "dark": "Dark Mode",
   "create": "Create",
   "loading_db": "Loading database information...",
-  "please_wait": "Please wait a moment."
+  "please_wait": "Please wait a moment.",
+  "please_await": "Please wait a moment."
 }
