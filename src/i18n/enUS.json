@@ -18,5 +18,6 @@
   "update": "Update",
   "light": "Light Mode",
   "dark": "Dark Mode",
-  "create": "Create"
+  "create": "Create",
+  "loading_db": "Loading database information..."
 }
