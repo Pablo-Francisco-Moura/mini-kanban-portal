@@ -1,7 +1,7 @@
 import { t } from "i18next";
 import { DialogBox } from "./DialogBox";
 import { useKanbanStore } from "../store/kanbanStore";
-import { Tooltip, IconButton, Box, CircularProgress } from "@mui/material";
+import { Tooltip, IconButton, Box, CircularProgress, useTheme, Paper, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { getBoardsApi, createBoardApi } from "../api/boards";
 import type { TypeFieldsValues } from "../types/kanban";
@@ -27,6 +27,8 @@ export function BoardList({ onSelectBoard, selectedBoardId }: Props) {
     name: "",
   });
 
+  const theme = useTheme();
+
   const createNewBoard = async () => {
     setLoading(true);
     try {
@@ -47,6 +49,7 @@ export function BoardList({ onSelectBoard, selectedBoardId }: Props) {
 
     const fetchBoards = async () => {
       setInitialLoading(true);
+      const start = Date.now();
       try {
         const res = await getBoardsApi();
         if (!mounted) return;
@@ -63,7 +66,10 @@ export function BoardList({ onSelectBoard, selectedBoardId }: Props) {
         // keep existing behavior on error
         setBoards([]);
       } finally {
-        if (mounted) setInitialLoading(false);
+        const elapsed = Date.now() - start;
+        const minDisplay = 300; // prevent flicker by showing at least 300ms
+        const remaining = Math.max(0, minDisplay - elapsed);
+        if (mounted) setTimeout(() => mounted && setInitialLoading(false), remaining);
       }
     };
 
@@ -76,10 +82,15 @@ export function BoardList({ onSelectBoard, selectedBoardId }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setBoards]);
 
+  // overlay background adapts to theme to keep good contrast on light/dark
+  const overlayBg = theme.palette.mode === "dark" ? "rgba(0,0,0,0.6)" : "rgba(255,255,255,0.7)";
+
   return (
     <>
       {initialLoading && (
         <div
+          role="status"
+          aria-busy="true"
           style={{
             position: "fixed",
             top: 0,
@@ -89,14 +100,37 @@ export function BoardList({ onSelectBoard, selectedBoardId }: Props) {
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            backgroundColor: "rgba(0,0,0,0.5)",
+            backgroundColor: overlayBg,
             zIndex: 1400,
+            pointerEvents: "auto",
+            backdropFilter: "blur(6px)",
           }}
         >
-          <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", color: "#fff" }}>
-            <CircularProgress color="inherit" />
-            <div style={{ marginTop: 12 }}>{t("loading_db")}</div>
-          </Box>
+          <Paper
+            elevation={8}
+            sx={{
+              display: "flex",
+              gap: 2,
+              alignItems: "center",
+              padding: 3,
+              borderRadius: 2,
+              minWidth: 360,
+              maxWidth: "80%",
+              backgroundColor: theme.palette.background.paper,
+            }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 56, height: 56, borderRadius: '50%', backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)'}}>
+              <CircularProgress color="primary" />
+            </Box>
+            <Box sx={{ display: "flex", flexDirection: "column" }}>
+              <Typography variant="h6" sx={{ fontWeight: 700, color: theme.palette.text.primary }}>
+                {t("loading_db")}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                {t("please_wait")}
+              </Typography>
+            </Box>
+          </Paper>
         </div>
       )}
 
