@@ -21,5 +21,8 @@
   "create": "Criar",
   "loading_db": "Carregando informações do banco de dados...",
   "please_wait": "Aguarde um instante.",
-  "please_await": "Aguarde um instante."
+  "please_await": "Aguarde um instante.",
+  "countdown": "Aguardando o servidor responder: {{seconds}}s",
+  "progress_label": "Progresso: {{percent}}%",
+  "server_timeout_error": "Não foi possível carregar as informações do servidor. Tente novamente em alguns instantes."
 }
