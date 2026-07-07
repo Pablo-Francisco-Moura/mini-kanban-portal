@@ -1,7 +1,8 @@
 import { t } from "i18next";
 import { DialogBox } from "./DialogBox";
+import { LoadingState } from "./LoadingState";
 import { useKanbanStore } from "../store/kanbanStore";
-import { Tooltip, IconButton, Box, CircularProgress, useTheme, Paper, Typography } from "@mui/material";
+import { Tooltip, IconButton } from "@mui/material";
 import { useEffect, useState } from "react";
 import { getBoardsApi, createBoardApi } from "../api/boards";
 import type { TypeFieldsValues } from "../types/kanban";
@@ -27,7 +28,9 @@ export function BoardList({ onSelectBoard, selectedBoardId }: Props) {
     name: "",
   });
 
-  const theme = useTheme();
+  const [countdownSeconds, setCountdownSeconds] = useState(120);
+  const [progressPercent, setProgressPercent] = useState(0);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const createNewBoard = async () => {
     setLoading(true);
@@ -46,10 +49,68 @@ export function BoardList({ onSelectBoard, selectedBoardId }: Props) {
 
   useEffect(() => {
     let mounted = true;
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+    let finishTimer: ReturnType<typeof setTimeout> | undefined;
+    let countdownInterval: ReturnType<typeof setInterval> | undefined;
+
+    const finishLoading = (keepVisible = false) => {
+      if (!mounted) return;
+      setCountdownSeconds(0);
+      setProgressPercent(100);
+
+      if (finishTimer) {
+        clearTimeout(finishTimer);
+      }
+
+      if (!keepVisible) {
+        finishTimer = setTimeout(() => {
+          if (!mounted) return;
+          setInitialLoading(false);
+        }, 700);
+      }
+    };
+
+    const startCountdown = () => {
+      if (countdownInterval) return;
+
+      countdownInterval = setInterval(
+        () => {
+          if (!mounted) return;
+
+          setCountdownSeconds((prev) => {
+            const next = prev > 0 ? prev - 1 : 0;
+            if (next === 0 && countdownInterval) {
+              clearInterval(countdownInterval);
+              countdownInterval = undefined;
+            }
+            return next;
+          });
+
+          setProgressPercent((value) => Math.min(100, value + 100 / 120));
+        },
+        1000, // 1 second
+      );
+    };
 
     const fetchBoards = async () => {
       setInitialLoading(true);
-      const start = Date.now();
+      setCountdownSeconds(120);
+      setProgressPercent(0);
+      setErrorMessage(null);
+
+      startCountdown();
+
+      timeoutId = setTimeout(() => {
+        if (!mounted) return;
+        setCountdownSeconds(0);
+        setProgressPercent(100);
+        setErrorMessage(t("server_timeout_error"));
+        if (countdownInterval) {
+          clearInterval(countdownInterval);
+          countdownInterval = undefined;
+        }
+      }, 120000);
+
       try {
         const res = await getBoardsApi();
         if (!mounted) return;
@@ -62,14 +123,34 @@ export function BoardList({ onSelectBoard, selectedBoardId }: Props) {
         } else {
           setBoards([]);
         }
+
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+        }
+        if (countdownInterval) {
+          clearInterval(countdownInterval);
+          countdownInterval = undefined;
+        }
+        finishLoading();
       } catch (err) {
-        // keep existing behavior on error
         setBoards([]);
+
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+        }
+        if (countdownInterval) {
+          clearInterval(countdownInterval);
+          countdownInterval = undefined;
+        }
+        finishLoading();
       } finally {
-        const elapsed = Date.now() - start;
-        const minDisplay = 300; // prevent flicker by showing at least 300ms
-        const remaining = Math.max(0, minDisplay - elapsed);
-        if (mounted) setTimeout(() => mounted && setInitialLoading(false), remaining);
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+        }
+        if (countdownInterval) {
+          clearInterval(countdownInterval);
+          countdownInterval = undefined;
+        }
       }
     };
 
@@ -77,62 +158,28 @@ export function BoardList({ onSelectBoard, selectedBoardId }: Props) {
 
     return () => {
       mounted = false;
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      if (countdownInterval) {
+        clearInterval(countdownInterval);
+      }
+      if (finishTimer) {
+        clearTimeout(finishTimer);
+      }
     };
     // Run only on mount to show the initial loading overlay while first fetch runs
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setBoards]);
 
-  // overlay background adapts to theme to keep good contrast on light/dark
-  const overlayBg = theme.palette.mode === "dark" ? "rgba(0,0,0,0.6)" : "rgba(255,255,255,0.7)";
-
   return (
     <>
-      {initialLoading && (
-        <div
-          role="status"
-          aria-busy="true"
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100vw",
-            height: "100vh",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            backgroundColor: overlayBg,
-            zIndex: 1400,
-            pointerEvents: "auto",
-            backdropFilter: "blur(6px)",
-          }}
-        >
-          <Paper
-            elevation={8}
-            sx={{
-              display: "flex",
-              gap: 2,
-              alignItems: "center",
-              padding: 3,
-              borderRadius: 2,
-              minWidth: 360,
-              maxWidth: "80%",
-              backgroundColor: theme.palette.background.paper,
-            }}
-          >
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 56, height: 56, borderRadius: '50%', backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)'}}>
-              <CircularProgress color="primary" />
-            </Box>
-            <Box sx={{ display: "flex", flexDirection: "column" }}>
-              <Typography variant="h6" sx={{ fontWeight: 700, color: theme.palette.text.primary }}>
-                {t("loading_db")}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {t("please_wait")}
-              </Typography>
-            </Box>
-          </Paper>
-        </div>
-      )}
+      <LoadingState
+        open={initialLoading}
+        countdownSeconds={countdownSeconds}
+        progressPercent={progressPercent}
+        errorMessage={errorMessage ?? undefined}
+      />
 
       <div
         style={{

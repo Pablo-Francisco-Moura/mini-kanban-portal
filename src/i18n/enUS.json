@@ -21,5 +21,8 @@
   "create": "Create",
   "loading_db": "Loading database information...",
   "please_wait": "Please wait a moment.",
-  "please_await": "Please wait a moment."
+  "please_await": "Please wait a moment.",
+  "countdown": "Waiting for the server to respond: {{seconds}}s",
+  "progress_label": "Progress: {{percent}}%",
+  "server_timeout_error": "The server could not load the information. Please try again in a few moments."
 }
