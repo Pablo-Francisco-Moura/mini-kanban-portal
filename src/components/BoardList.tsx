@@ -2,6 +2,7 @@ import { t } from "i18next";
 import { DialogBox } from "./DialogBox";
 import { LoadingState } from "./LoadingState";
 import { useKanbanStore } from "../store/kanbanStore";
+import {} from "../api/colors";
 import { Tooltip, IconButton } from "@mui/material";
 import { useEffect, useState } from "react";
 import { getBoardsApi, createBoardApi } from "../api/boards";
@@ -13,8 +14,8 @@ import InputLabel from "@mui/material/InputLabel";
 import FormControl from "@mui/material/FormControl";
 
 interface Props {
-  onSelectBoard: (id: string) => void;
-  selectedBoardId: string | null;
+  onSelectBoard: (id: number) => void;
+  selectedBoardId: number | null;
 }
 
 export function BoardList({ onSelectBoard, selectedBoardId }: Props) {
@@ -121,8 +122,6 @@ export function BoardList({ onSelectBoard, selectedBoardId }: Props) {
             onSelectBoard(res.data?.[0]?.id);
           }
         } else {
-          setBoards([]);
-        }
 
         if (timeoutId) {
           clearTimeout(timeoutId);
@@ -132,8 +131,10 @@ export function BoardList({ onSelectBoard, selectedBoardId }: Props) {
           countdownInterval = undefined;
         }
         finishLoading();
-      } catch (err) {
+        }
         setBoards([]);
+        const msg = err?.response?.data?.message || err?.message || t("server_error");
+        setErrorMessage(msg);
 
         if (timeoutId) {
           clearTimeout(timeoutId);
@@ -141,6 +142,9 @@ export function BoardList({ onSelectBoard, selectedBoardId }: Props) {
         if (countdownInterval) {
           clearInterval(countdownInterval);
           countdownInterval = undefined;
+        }
+        // keep overlay visible and show error
+        finishLoading(true);
         }
         finishLoading();
       } finally {
@@ -172,6 +176,8 @@ export function BoardList({ onSelectBoard, selectedBoardId }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setBoards]);
 
+  // Board list does not use colors anymore; column colors are managed per-column
+
   return (
     <>
       <LoadingState
@@ -191,13 +197,13 @@ export function BoardList({ onSelectBoard, selectedBoardId }: Props) {
           <InputLabel id="board-select-label"> {t("board")}</InputLabel>
           <Select
             id="board-select"
-            value={selectedBoardId || ""}
+            value={selectedBoardId != null ? String(selectedBoardId) : ""}
             label={t("board")}
             labelId="board-select-label"
-            onChange={(e) => onSelectBoard(e.target.value)}
+            onChange={(e) => onSelectBoard(Number(e.target.value))}
           >
             {boards.map((board) => (
-              <MenuItem key={board.id} value={board.id}>
+              <MenuItem key={board.id} value={String(board.id)}>
                 {board.name}
               </MenuItem>
             ))}

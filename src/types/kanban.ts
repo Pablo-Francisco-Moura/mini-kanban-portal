@@ -1,22 +1,29 @@
 export type TypeCard = {
-  id: string;
+  id: number;
   title: string;
-  columnId: string;
+  columnId: number;
   description?: string;
 };
 
 export type TypeColumn = {
-  id: string;
+  id: number;
   name: string;
   cards: TypeCard[];
-  boardId: string;
-  cardIds: string[];
+  boardId: number;
+  cardIds: number[];
+  colorId?: number | null;
+};
+
+export type TypeColumnColor = {
+  id: number;
+  name: string;
+  hex: string;
 };
 
 export type TypeBoard = {
-  id: string;
+  id: number;
   name: string;
-  columnIds: string[];
+  columnIds: number[];
 };
 
 export type TypeBoardDetailResponse = TypeBoard & {
