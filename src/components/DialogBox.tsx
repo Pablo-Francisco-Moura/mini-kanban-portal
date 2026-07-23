@@ -1,12 +1,20 @@
 import { t } from "i18next";
-import { Dialog } from "@mui/material";
-import { Button } from "@mui/material";
-import { TextField } from "@mui/material";
-import { DialogTitle } from "@mui/material";
-import { DialogContent } from "@mui/material";
-import { DialogActions } from "@mui/material";
+import {
+  Dialog,
+  Button,
+  TextField,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Box,
+} from "@mui/material";
 import type { ChangeEvent } from "react";
-import type { TypeFieldsValues } from "../types/kanban";
+import type { TypeFieldsValues, TypeColumnColor } from "../types/kanban";
+import Alert from "@mui/material/Alert";
 
 interface Props {
   open: boolean;
@@ -17,6 +25,8 @@ interface Props {
   action: () => Promise<void>;
   setNew: (values: TypeFieldsValues) => void;
   onClose: () => void;
+  colors?: TypeColumnColor[];
+  errorMessage?: string | null;
 }
 
 export function DialogBox({
@@ -28,19 +38,31 @@ export function DialogBox({
   action,
   setNew,
   onClose,
+  colors = [],
+  errorMessage = null,
 }: Props) {
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-    field: string
+    field: string,
   ) => {
     const { value } = e.target;
     setNew({ ...newValues, [field]: value });
+  };
+
+  const handleColorChange = (value: string) => {
+    setNew({ ...newValues, colorId: value });
   };
 
   return (
     <Dialog open={open} onClose={onClose}>
       <DialogTitle>{label}</DialogTitle>
       <DialogContent>
+        {errorMessage && (
+          <Alert severity="error" sx={{ mb: 1 }}>
+            {errorMessage}
+          </Alert>
+        )}
+
         {fields.map((field, index) => (
           <TextField
             key={`${index}-${label}-${field}`}
@@ -54,10 +76,45 @@ export function DialogBox({
             fullWidth
           />
         ))}
+
+        {colors && colors.length > 0 && (
+          <FormControl fullWidth margin="dense">
+            <InputLabel id="column-color-select-label">{t("color")}</InputLabel>
+            <Select
+              labelId="column-color-select-label"
+              id="column-color-select"
+              value={newValues.colorId || ""}
+              label={t("color")}
+              onChange={(e) => handleColorChange(String(e.target.value))}
+              disabled={loading}
+            >
+              <MenuItem value="">
+                <em>{t("none")}</em>
+              </MenuItem>
+              {colors.map((c) => (
+                <MenuItem key={c.id} value={c.id}>
+                  <Box
+                    component="span"
+                    sx={{
+                      display: "inline-block",
+                      width: 14,
+                      height: 14,
+                      borderRadius: "50%",
+                      backgroundColor: c.hex,
+                      verticalAlign: "middle",
+                      mr: 1,
+                    }}
+                  />
+                  {c.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        )}
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} disabled={loading}>
-          Cancelar
+          {t("cancel") || "Cancelar"}
         </Button>
         <Button
           onClick={action}

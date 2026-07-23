@@ -10,7 +10,7 @@ function App() {
   const mode = useKanbanStore((s) => s.mode);
   const setMode = useKanbanStore((s) => s.setMode);
 
-  const [selectedBoardId, setSelectedBoardId] = useState<string | null>(null);
+  const [selectedBoardId, setSelectedBoardId] = useState<number | null>(null);
 
   const theme = createTheme({
     palette: {
@@ -55,13 +55,13 @@ function App() {
         <Divider sx={{ borderBottomWidth: "2px" }} />
 
         <BoardList
-          onSelectBoard={setSelectedBoardId}
+          onSelectBoard={(id: number) => setSelectedBoardId(id)}
           selectedBoardId={selectedBoardId}
         />
 
         <Divider sx={{ borderBottomWidth: "2px" }} />
 
-        {selectedBoardId && <Board boardId={selectedBoardId} />}
+        {selectedBoardId != null && <Board boardId={selectedBoardId} />}
       </div>
     </ThemeProvider>
   );

@@ -6,7 +6,7 @@ import { useKanbanStore } from "../store/kanbanStore";
 import type { TypeBoardDetailResponse } from "../types/kanban";
 
 interface Props {
-  boardId: string;
+  boardId: number;
 }
 
 export function Board({ boardId }: Props) {

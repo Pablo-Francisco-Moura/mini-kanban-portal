@@ -1,19 +1,20 @@
 import { t } from "i18next";
 import { Card } from "./Card";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DialogBox } from "./DialogBox";
 import { moveCardApi } from "../api/cards";
 import { createCardApi } from "../api/cards";
 import { useKanbanStore } from "../store/kanbanStore";
 import { createColumnApi } from "../api/columns";
+import { getColumnColorsApi } from "../api/colors";
 import { Tooltip, IconButton } from "@mui/material";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import type { DropResult } from "react-beautiful-dnd";
-import type { TypeFieldsValues } from "../types/kanban";
+import type { TypeFieldsValues, TypeColumnColor } from "../types/kanban";
 import AddIcon from "@mui/icons-material/Add";
 
 interface Props {
-  boardId: string;
+  boardId: number;
 }
 
 export function DragAndDrop({ boardId }: Props) {
@@ -21,7 +22,7 @@ export function DragAndDrop({ boardId }: Props) {
   const columns = useKanbanStore((s) => s.columns);
   const setColumns = useKanbanStore((s) => s.setColumns);
 
-  const [columnId, setColumnId] = useState("");
+  const [columnId, setColumnId] = useState<number | null>(null);
   const [openCard, setOpenCard] = useState(false);
   const [openColumn, setOpenColumn] = useState(false);
   const [loadingCard, setLoadingCard] = useState(false);
@@ -32,7 +33,32 @@ export function DragAndDrop({ boardId }: Props) {
   });
   const [newColumnValues, setNewColumnValues] = useState<TypeFieldsValues>({
     name: "",
+    colorId: "",
   });
+  const [columnError, setColumnError] = useState<string | null>(null);
+
+  const [columnColors, setColumnColors] = useState<TypeColumnColor[]>([]);
+
+  useEffect(() => {
+    let mounted = true;
+    const fetchColors = async () => {
+      try {
+        const res = await getColumnColorsApi();
+        if (!mounted) return;
+        if (res?.data && Array.isArray(res.data)) {
+          setColumnColors(res.data);
+        } else {
+          setColumnColors([]);
+        }
+      } catch (err: any) {
+        setColumnColors([]);
+      }
+    };
+    fetchColors();
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const createColumn = async () => {
     setLoadingColumn(true);
@@ -40,15 +66,21 @@ export function DragAndDrop({ boardId }: Props) {
       const res = await createColumnApi(boardId, {
         name: newColumnValues.name,
         order: columns.length + 1,
+        colorId: newColumnValues.colorId || null,
       });
 
       if (res?.data) {
         // Certify that cards array exists.
         const newCol = { ...res.data, cards: res.data.cards || [] };
         setColumns([...columns, newCol]);
-        setNewColumnValues({ name: "" });
+        setNewColumnValues({ name: "", colorId: "" });
         setOpenColumn(false);
       }
+    } catch (err: any) {
+      const msg =
+        err?.response?.data?.message || err?.message || "Erro interno";
+      setColumnError(msg);
+      return;
     } finally {
       setLoadingColumn(false);
     }
@@ -57,7 +89,7 @@ export function DragAndDrop({ boardId }: Props) {
   const createCard = async () => {
     setLoadingCard(true);
     try {
-      const res = await createCardApi(columnId, {
+      const res = await createCardApi(columnId as number, {
         title: newCardValues.title || "",
         description: newCardValues.description || "",
       });
@@ -89,10 +121,10 @@ export function DragAndDrop({ boardId }: Props) {
 
     // Find source and destination columns.
     const sourceColIdx = columns.findIndex(
-      (col) => col.id === source.droppableId
+      (col) => col.id === Number(source.droppableId),
     );
     const destColIdx = columns.findIndex(
-      (col) => col.id === destination.droppableId
+      (col) => col.id === Number(destination.droppableId),
     );
     if (sourceColIdx === -1 || destColIdx === -1) return;
 
@@ -115,7 +147,7 @@ export function DragAndDrop({ boardId }: Props) {
 
     // Save change to backend if moved to different column.
     if (card.id && destination.droppableId !== source.droppableId) {
-      moveCardApi(card.id, destination.droppableId);
+      moveCardApi(card.id, Number(destination.droppableId));
     }
   };
 
@@ -131,7 +163,7 @@ export function DragAndDrop({ boardId }: Props) {
         }}
       >
         {columns.map((column) => (
-          <Droppable droppableId={column.id} key={column.id}>
+          <Droppable droppableId={String(column.id)} key={column.id}>
             {(provided) => (
               <div
                 ref={provided.innerRef}
@@ -212,6 +244,8 @@ export function DragAndDrop({ boardId }: Props) {
           onClose={() => setOpenColumn(false)}
           loading={loadingColumn}
           newValues={newColumnValues}
+          colors={columnColors}
+          errorMessage={columnError}
         />
       </div>
       <DialogBox

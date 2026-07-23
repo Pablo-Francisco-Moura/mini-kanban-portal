@@ -57,4 +57,22 @@ describe("DialogBox", () => {
     if (button) fireEvent.click(button);
     expect(defaultProps.onClose).toHaveBeenCalled();
   });
+
+  it("Renders color selector and updates colorId on change", async () => {
+    const colors = [
+      { id: "red", name: "Red", hex: "#ff0000" },
+      { id: "blue", name: "Blue", hex: "#0000ff" },
+    ];
+    render(<DialogBox {...defaultProps} colors={colors} />);
+    const select = screen.getByLabelText(/color/i);
+    expect(select).toBeInTheDocument();
+    // For MUI Select, open the menu then click the option
+    fireEvent.mouseDown(select);
+    const option = await screen.findByText(/Blue/i);
+    fireEvent.click(option);
+    expect(defaultProps.setNew).toHaveBeenCalledWith({
+      name: "",
+      colorId: "blue",
+    });
+  });
 });
