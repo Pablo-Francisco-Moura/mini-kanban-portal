@@ -27,6 +27,7 @@ interface Props {
   onClose: () => void;
   colors?: TypeColumnColor[];
   errorMessage?: string | null;
+  actionLabel?: string;
 }
 
 export function DialogBox({
@@ -40,6 +41,7 @@ export function DialogBox({
   onClose,
   colors = [],
   errorMessage = null,
+  actionLabel,
 }: Props) {
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -49,8 +51,8 @@ export function DialogBox({
     setNew({ ...newValues, [field]: value });
   };
 
-  const handleColorChange = (value: string) => {
-    setNew({ ...newValues, colorId: value });
+  const handleColorChange = (field: string, value: string) => {
+    setNew({ ...newValues, [field]: value });
   };
 
   return (
@@ -63,19 +65,48 @@ export function DialogBox({
           </Alert>
         )}
 
-        {fields.map((field, index) => (
-          <TextField
-            key={`${index}-${label}-${field}`}
-            name={field}
-            label={t(field)}
-            value={newValues[field] || ""}
-            margin="dense"
-            onChange={(e) => handleChange(e, field)}
-            disabled={loading}
-            autoFocus={index === 0}
-            fullWidth
-          />
-        ))}
+        {fields.map((field, index) => {
+          if (field === "hex") {
+            return (
+              <div
+                key={`${index}-${label}-${field}`}
+                style={{ display: "flex", gap: 8 }}
+              >
+                <input
+                  aria-label="color-picker"
+                  type="color"
+                  value={newValues.hex || "#000000"}
+                  onChange={(e) => handleColorChange("hex", e.target.value)}
+                  disabled={loading}
+                  style={{ width: 48, height: 40, border: "none", padding: 0 }}
+                />
+                <TextField
+                  name={field}
+                  label={t(field)}
+                  value={newValues[field] || ""}
+                  margin="dense"
+                  onChange={(e) => handleChange(e, field)}
+                  disabled={loading}
+                  autoFocus={index === 0}
+                  fullWidth
+                />
+              </div>
+            );
+          }
+          return (
+            <TextField
+              key={`${index}-${label}-${field}`}
+              name={field}
+              label={t(field)}
+              value={newValues[field] || ""}
+              margin="dense"
+              onChange={(e) => handleChange(e, field)}
+              disabled={loading}
+              autoFocus={index === 0}
+              fullWidth
+            />
+          );
+        })}
 
         {colors && colors.length > 0 && (
           <FormControl fullWidth margin="dense">
@@ -85,7 +116,9 @@ export function DialogBox({
               id="column-color-select"
               value={newValues.colorId || ""}
               label={t("color")}
-              onChange={(e) => handleColorChange(String(e.target.value))}
+              onChange={(e) =>
+                handleColorChange("colorId", String(e.target.value))
+              }
               disabled={loading}
             >
               <MenuItem value="">
@@ -121,7 +154,7 @@ export function DialogBox({
           disabled={fields.some((f) => !newValues[f]?.trim()) || loading}
           variant="contained"
         >
-          {t("create")}
+          {actionLabel || t("create")}
         </Button>
       </DialogActions>
     </Dialog>

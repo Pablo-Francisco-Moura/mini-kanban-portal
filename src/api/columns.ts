@@ -13,3 +13,15 @@ export const createColumnApi = (
 
   return api.post<TypeColumn>(`/boards/${Number(boardId)}/columns`, payload);
 };
+
+export const updateColumnApi = (
+  columnId: number,
+  data: { name?: string; colorId?: string | number | null },
+) => {
+  const payload = {
+    name: data.name,
+    colorId: data.colorId != null ? Number(data.colorId) : null,
+  } as { name?: string; colorId?: number | null };
+
+  return api.put<TypeColumn>(`/columns/${Number(columnId)}`, payload);
+};

@@ -54,43 +54,68 @@ export function BoardList({ onSelectBoard, selectedBoardId }: Props) {
     let finishTimer: ReturnType<typeof setTimeout> | undefined;
     let countdownInterval: ReturnType<typeof setInterval> | undefined;
 
+    const clearTimers = () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+        timeoutId = undefined;
+      }
+      if (countdownInterval) {
+        clearInterval(countdownInterval);
+        countdownInterval = undefined;
+      }
+    };
+
+    const clearAllTimers = () => {
+      clearTimers();
+      if (finishTimer) {
+        clearTimeout(finishTimer);
+        finishTimer = undefined;
+      }
+    };
+
     const finishLoading = (keepVisible = false) => {
       if (!mounted) return;
+      clearTimers();
       setCountdownSeconds(0);
       setProgressPercent(100);
 
       if (finishTimer) {
         clearTimeout(finishTimer);
+        finishTimer = undefined;
       }
 
-      if (!keepVisible) {
-        finishTimer = setTimeout(() => {
+      finishTimer = setTimeout(
+        () => {
           if (!mounted) return;
           setInitialLoading(false);
-        }, 700);
-      }
+        },
+        keepVisible ? 4000 : 700,
+      );
     };
 
     const startCountdown = () => {
       if (countdownInterval) return;
 
-      countdownInterval = setInterval(
-        () => {
-          if (!mounted) return;
+      countdownInterval = setInterval(() => {
+        if (!mounted) return;
 
-          setCountdownSeconds((prev) => {
-            const next = prev > 0 ? prev - 1 : 0;
-            if (next === 0 && countdownInterval) {
-              clearInterval(countdownInterval);
-              countdownInterval = undefined;
-            }
-            return next;
-          });
+        setCountdownSeconds((prev) => {
+          const next = prev > 0 ? prev - 1 : 0;
+          if (next === 0) {
+            clearTimers();
+          }
+          return next;
+        });
 
-          setProgressPercent((value) => Math.min(100, value + 100 / 120));
-        },
-        1000, // 1 second
-      );
+        setProgressPercent((value) => {
+          const next = Math.min(100, value + 100 / 120);
+          if (next >= 100) {
+            // ensure overlay is finished when progress reaches 100%
+            finishLoading();
+          }
+          return next;
+        });
+      }, 1000);
     };
 
     const fetchBoards = async () => {
@@ -106,10 +131,7 @@ export function BoardList({ onSelectBoard, selectedBoardId }: Props) {
         setCountdownSeconds(0);
         setProgressPercent(100);
         setErrorMessage(t("server_timeout_error"));
-        if (countdownInterval) {
-          clearInterval(countdownInterval);
-          countdownInterval = undefined;
-        }
+        clearTimers();
       }, 120000);
 
       try {
@@ -122,39 +144,18 @@ export function BoardList({ onSelectBoard, selectedBoardId }: Props) {
             onSelectBoard(res.data?.[0]?.id);
           }
         } else {
-
-        if (timeoutId) {
-          clearTimeout(timeoutId);
-        }
-        if (countdownInterval) {
-          clearInterval(countdownInterval);
-          countdownInterval = undefined;
+          setBoards([]);
         }
         finishLoading();
-        }
-        setBoards([]);
-        const msg = err?.response?.data?.message || err?.message || t("server_error");
+      } catch (err) {
+        if (!mounted) return;
+
+        const msg =
+          err?.response?.data?.message || err?.message || t("server_error");
         setErrorMessage(msg);
-
-        if (timeoutId) {
-          clearTimeout(timeoutId);
-        }
-        if (countdownInterval) {
-          clearInterval(countdownInterval);
-          countdownInterval = undefined;
-        }
-        // keep overlay visible and show error
         finishLoading(true);
-        }
-        finishLoading();
       } finally {
-        if (timeoutId) {
-          clearTimeout(timeoutId);
-        }
-        if (countdownInterval) {
-          clearInterval(countdownInterval);
-          countdownInterval = undefined;
-        }
+        clearTimers();
       }
     };
 
@@ -162,15 +163,7 @@ export function BoardList({ onSelectBoard, selectedBoardId }: Props) {
 
     return () => {
       mounted = false;
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
-      if (countdownInterval) {
-        clearInterval(countdownInterval);
-      }
-      if (finishTimer) {
-        clearTimeout(finishTimer);
-      }
+      clearTimers();
     };
     // Run only on mount to show the initial loading overlay while first fetch runs
     // eslint-disable-next-line react-hooks/exhaustive-deps

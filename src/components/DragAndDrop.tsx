@@ -1,17 +1,18 @@
 import { t } from "i18next";
 import { Card } from "./Card";
-import { useState, useEffect } from "react";
 import { DialogBox } from "./DialogBox";
 import { moveCardApi } from "../api/cards";
 import { createCardApi } from "../api/cards";
 import { useKanbanStore } from "../store/kanbanStore";
-import { createColumnApi } from "../api/columns";
-import { getColumnColorsApi } from "../api/colors";
+import { useState, useEffect } from "react";
 import { Tooltip, IconButton } from "@mui/material";
+import { createColumnApi, updateColumnApi } from "../api/columns";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { getColumnColorsApi, createColumnColorApi } from "../api/colors";
 import type { DropResult } from "react-beautiful-dnd";
 import type { TypeFieldsValues, TypeColumnColor } from "../types/kanban";
 import AddIcon from "@mui/icons-material/Add";
+import PaletteIcon from "@mui/icons-material/Palette";
 
 interface Props {
   boardId: number;
@@ -38,23 +39,50 @@ export function DragAndDrop({ boardId }: Props) {
   const [columnError, setColumnError] = useState<string | null>(null);
 
   const [columnColors, setColumnColors] = useState<TypeColumnColor[]>([]);
+  const [editOpen, setEditOpen] = useState(false);
+  const [editColumnId, setEditColumnId] = useState<number | null>(null);
+  const [editColumnValues, setEditColumnValues] = useState<TypeFieldsValues>({
+    name: "",
+    colorId: "",
+  });
+  const [editLoading, setEditLoading] = useState(false);
+  const [editError, setEditError] = useState<string | null>(null);
+
+  const [colorModalOpen, setColorModalOpen] = useState(false);
+  const [newColorValues, setNewColorValues] = useState<TypeFieldsValues>({
+    name: "",
+    hex: "",
+  });
+  const [creatingColor, setCreatingColor] = useState(false);
+  const [colorError, setColorError] = useState<string | null>(null);
+
+  const fetchColumnColors = async () => {
+    try {
+      const res = await getColumnColorsApi();
+      const backendColors =
+        res?.data && Array.isArray(res.data) ? res.data : [];
+      // merge with local colors saved in localStorage (fallback when backend doesn't support POST)
+      const localRaw = localStorage.getItem("local_column_colors");
+      const localColors: TypeColumnColor[] = localRaw
+        ? JSON.parse(localRaw)
+        : [];
+      // assign negative ids for local colors if necessary
+      const merged = [...backendColors, ...localColors];
+      setColumnColors(merged);
+    } catch (err: any) {
+      // try to load local colors only
+      const localRaw = localStorage.getItem("local_column_colors");
+      const localColors: TypeColumnColor[] = localRaw
+        ? JSON.parse(localRaw)
+        : [];
+      setColumnColors(localColors);
+    }
+  };
 
   useEffect(() => {
     let mounted = true;
-    const fetchColors = async () => {
-      try {
-        const res = await getColumnColorsApi();
-        if (!mounted) return;
-        if (res?.data && Array.isArray(res.data)) {
-          setColumnColors(res.data);
-        } else {
-          setColumnColors([]);
-        }
-      } catch (err: any) {
-        setColumnColors([]);
-      }
-    };
-    fetchColors();
+    // call fetch but ignore mounted check inside since setState is safe here
+    fetchColumnColors();
     return () => {
       mounted = false;
     };
@@ -173,7 +201,17 @@ export function DragAndDrop({ boardId }: Props) {
                   minWidth: 250,
                   overflowY: "auto",
                   borderRadius: 8,
-                  backgroundColor: mode === "light" ? "#f4f4f4" : "#484555ff",
+                  backgroundColor:
+                    // use column-specific color from backend when available
+                    (column?.columnColorId
+                      ? columnColors.find(
+                          (c) => c.id === Number(column.columnColorId),
+                        )?.hex
+                      : column?.colorId
+                        ? columnColors.find(
+                            (c) => c.id === Number(column.colorId),
+                          )?.hex
+                        : null) || (mode === "light" ? "#f4f4f4" : "#484555ff"),
                 }}
               >
                 <div
@@ -196,6 +234,44 @@ export function DragAndDrop({ boardId }: Props) {
                       <AddIcon />
                     </IconButton>
                   </Tooltip>
+                  <Tooltip arrow title={t("edit")}>
+                    <IconButton
+                      sx={{ maxHeight: "40px" }}
+                      onClick={async () => {
+                        // ensure colors are loaded before opening
+                        if (!columnColors || columnColors.length === 0) {
+                          await fetchColumnColors();
+                        }
+                        // open edit modal with column data
+                        setEditColumnId(column.id);
+                        setEditColumnValues({
+                          name: column.name || "",
+                          colorId:
+                            column.columnColorId != null
+                              ? String(column.columnColorId)
+                              : column.colorId != null
+                                ? String(column.colorId)
+                                : "",
+                        });
+                        setEditError(null);
+                        setEditOpen(true);
+                      }}
+                    >
+                      {/* pencil icon */}
+                      <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1.003 1.003 0 000-1.42l-2.34-2.34a1.003 1.003 0 00-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.82z"
+                          fill="currentColor"
+                        />
+                      </svg>
+                    </IconButton>
+                  </Tooltip>
                 </div>
                 <div
                   style={{
@@ -205,7 +281,11 @@ export function DragAndDrop({ boardId }: Props) {
                   }}
                 >
                   {column?.cards?.map((card, idx) => (
-                    <Draggable draggableId={card.id} index={idx} key={card.id}>
+                    <Draggable
+                      draggableId={String(card.id)}
+                      index={idx}
+                      key={card.id}
+                    >
                       {(provided) => (
                         <div
                           ref={provided.innerRef}
@@ -234,6 +314,17 @@ export function DragAndDrop({ boardId }: Props) {
             <AddIcon />
           </IconButton>
         </Tooltip>
+        <Tooltip arrow title={t("manage_colors") || "Colors"}>
+          <IconButton
+            sx={{ top: "10px", maxHeight: "40px", ml: 1 }}
+            onClick={async () => {
+              await fetchColumnColors();
+              setColorModalOpen(true);
+            }}
+          >
+            <PaletteIcon />
+          </IconButton>
+        </Tooltip>
 
         <DialogBox
           open={openColumn}
@@ -246,6 +337,107 @@ export function DragAndDrop({ boardId }: Props) {
           newValues={newColumnValues}
           colors={columnColors}
           errorMessage={columnError}
+        />
+        <DialogBox
+          open={colorModalOpen}
+          label={t("new") + " " + t("color")}
+          fields={["name", "hex"]}
+          action={async () => {
+            setCreatingColor(true);
+            try {
+              const res = await createColumnColorApi({
+                name: newColorValues.name,
+                hex: newColorValues.hex,
+              });
+              if (res?.data) {
+                await fetchColumnColors();
+                setNewColorValues({ name: "", hex: "" });
+                setColorModalOpen(false);
+              }
+            } catch (err: any) {
+              const status = err?.response?.status;
+              if (status === 404) {
+                // backend doesn't support creating colors; save locally as fallback
+                try {
+                  const localRaw = localStorage.getItem("local_column_colors");
+                  const localColors: TypeColumnColor[] = localRaw
+                    ? JSON.parse(localRaw)
+                    : [];
+                  const next: TypeColumnColor = {
+                    id: -Date.now(),
+                    name: newColorValues.name,
+                    hex: newColorValues.hex,
+                  };
+                  localColors.push(next);
+                  localStorage.setItem(
+                    "local_column_colors",
+                    JSON.stringify(localColors),
+                  );
+                  await fetchColumnColors();
+                  setNewColorValues({ name: "", hex: "" });
+                  setColorModalOpen(false);
+                } catch (e) {
+                  setColorError("Erro ao salvar cor localmente");
+                }
+              } else {
+                setColorError(
+                  err?.response?.data?.message ||
+                    err?.message ||
+                    "Erro ao criar cor",
+                );
+              }
+            } finally {
+              setCreatingColor(false);
+            }
+          }}
+          setNew={setNewColorValues}
+          onClose={() => setColorModalOpen(false)}
+          loading={creatingColor}
+          newValues={newColorValues}
+          errorMessage={colorError}
+        />
+        <DialogBox
+          open={editOpen}
+          label={`${t("edit")} ${t("column")}`}
+          fields={["name"]}
+          action={async () => {
+            if (!editColumnId) return;
+            setEditLoading(true);
+            try {
+              const res = await updateColumnApi(editColumnId, {
+                name: editColumnValues.name,
+                colorId: editColumnValues.colorId || null,
+              });
+              if (res?.data) {
+                // replace column in store while preserving cards
+                const updated = res.data;
+                const updatedColumns = columns.map((c) =>
+                  c.id === updated.id
+                    ? {
+                        ...c,
+                        ...updated,
+                        cards: c.cards || updated.cards || [],
+                      }
+                    : c,
+                );
+                setColumns(updatedColumns);
+                setEditOpen(false);
+              }
+            } catch (err: any) {
+              setEditError(
+                err?.response?.data?.message || err?.message || "Erro interno",
+              );
+            } finally {
+              setEditLoading(false);
+            }
+          }}
+          setNew={setEditColumnValues}
+          onClose={() => setEditOpen(false)}
+          loading={editLoading}
+          newValues={editColumnValues}
+          colors={columnColors}
+          errorMessage={editError}
+          actionLabel={t("save")}
         />
       </div>
       <DialogBox

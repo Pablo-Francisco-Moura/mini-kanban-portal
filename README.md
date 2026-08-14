@@ -20,6 +20,11 @@ SPA React para gerenciamento visual de Quadros, Colunas e Cartões, integrando c
    docker compose up --build
    ```
 
+   ```bash
+   docker compose build --no-cache
+   docker compose up -d --force-recreate
+   ```
+
    - O frontend estará disponível em http://localhost:5173
    - O hot reload estará ativo para desenvolvimento.
 
